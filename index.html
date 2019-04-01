@@ -20,6 +20,7 @@
 
     function drawArc() {
       ctx.save()
+      ctx.beginPath();
       ctx.translate(200, 150);
 
       const lineargradient = ctx.createLinearGradient(-30, 0, 30, 0);
@@ -31,8 +32,7 @@
       ctx.arc(0, 0, 100, Math.PI / 3, Math.PI / 6 + Math.PI / 2, true);
       ctx.stroke();
       ctx.clearRect(-60, 50, 120, 100)
-      ctx.strokeStyle = "black"
-      ctx.lineWidth = 1
+
       ctx.restore()
       console.log(ctx);
     }
@@ -58,8 +58,6 @@
     }
 
     function drawText() {
-
-
       ctx.save()
 
       ctx.translate(200, 150);
@@ -109,7 +107,6 @@
         curAngel++
         console.log(1);
       }
-
     }
 
     document.onkeyup = (e) => {
@@ -122,16 +119,16 @@
     drawIndicator();
     drawText();
 
-    // (function animation() {
+    (function animation() {
 
-    //   ctx.clearRect(0, 0, 1900, 1900)
-    //   drawGrad()
-    //   drawIndicator();
-    //   drawText();
-    //   drawArc()
+      ctx.clearRect(0, 0, 1900, 1900)
+      drawArc()
+      drawGrad()
+      drawIndicator();
+      drawText();
 
-    //   requestAnimationFrame(animation)
-    // })()
+      requestAnimationFrame(animation)
+    })()
   </script>
 </body>
 
