@@ -15,93 +15,7 @@
     const canvas = document.querySelector('#ping')
     const ctx = canvas.getContext('2d')
 
-    const minAngel = 60, maxAngel = 300
-    let curAngel = 60, v = 0, curNum = 0, timer = null
-
-    function drawArc() {
-      ctx.save()
-      ctx.beginPath();
-
-      const lineargradient = ctx.createLinearGradient(-90, 0, 30, 0);
-      lineargradient.addColorStop(0, '#0072c1');
-      lineargradient.addColorStop(1, '#e95321');
-      ctx.strokeStyle = lineargradient;
-      ctx.lineWidth = 10
-
-      ctx.arc(0, 0, 100, Math.PI / 3, Math.PI / 6 + Math.PI / 2, true);
-      ctx.stroke();
-
-      ctx.restore()
-    }
-
-    function drawGrad() {
-      ctx.save()
-      ctx.beginPath();
-      ctx.strokeStyle = 'black'
-      ctx.lineWidth = 1
-      ctx.rotate(Math.PI / 6)
-      for (let i = 0; i < 9; i++) {
-        ctx.rotate(Math.PI / 6)
-        ctx.moveTo(0, 100);
-        ctx.lineTo(0, 90);
-      }
-      ctx.stroke()
-      ctx.restore()
-    }
-
-    function drawText() {
-      ctx.save()
-
-      ctx.font = "18px serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle"
-      ctx.strokeStyle = 'black'
-      ctx.lineWidth = 1
-
-      let angel = Math.PI / 6
-      for (let i = 0; i < 9; i++) {
-        const x = 80 * Math.cos(angel * i + Math.PI / 2 + Math.PI / 3)
-        const y = 80 * Math.sin(angel * i + Math.PI / 2 + Math.PI / 3)
-        ctx.fillText(i, x, y);
-      }
-      if (!timer) {
-        timer = setTimeout(() => {
-          curNum = (((curAngel - 60) / 30) * 10).toFixed(1)
-          timer = null
-        }, 100)
-      }
-      
-      ctx.font = "900 32px serif";
-      ctx.clearRect(-60, 50, 120, 100)
-      ctx.fillText(curNum, 0, 85);
-      ctx.restore()
-    }
-
-    function drawIndicator() {
-      ctx.save()
-
-      curAngel += v
-      if (curAngel > maxAngel) {
-        curAngel = maxAngel
-        v = 0
-      } else if (curAngel < minAngel) {
-        curAngel = minAngel
-        v = 0
-      }
-
-      ctx.rotate(deg(curAngel))
-      ctx.moveTo(-5, 0)
-      ctx.lineTo(0, 70)
-      ctx.lineTo(5, 0)
-      ctx.quadraticCurveTo(0, -5 , -5, 0);
-      ctx.closePath();
-
-      ctx.lineWidth = 1
-      ctx.fillStyle = 'black'
-      ctx.fill()
-
-      ctx.restore()
-    }
+    let v = 0
 
 
     document.onkeydown = (e) => {
@@ -110,23 +24,141 @@
       }
     }
 
-    document.onkeyup = (e) => {
+    document.onmousedown = () => {
+      v = 2
+    }
+
+    document.onkeyup = document.onmouseup = (e) => {
       v = -1
     }
 
-    function drawMeter(ox, oy) {
-      ctx.save()
-      ctx.translate(ox, oy)
-      drawGrad()
-      drawIndicator();
-      drawArc()
-      drawText();
-      ctx.restore()
+    function meter(ox, oy) {
+      const minAngel = 60, maxAngel = 300
+      let curAngel = 60, curNum = 0, timer = null
+      
+      function drawArc() {
+        ctx.save()
+        ctx.beginPath();
+
+        const lineargradient = ctx.createLinearGradient(-90, 0, 30, 0);
+        lineargradient.addColorStop(0, '#0072c1');
+        lineargradient.addColorStop(1, '#e95321');
+        ctx.strokeStyle = lineargradient;
+        ctx.lineWidth = 10
+
+        ctx.arc(0, 0, 100, Math.PI / 3, Math.PI / 6 + Math.PI / 2, true);
+        ctx.stroke();
+
+        ctx.restore()
+      }
+
+      function drawGrad() {
+        ctx.save()
+        ctx.beginPath();
+        ctx.strokeStyle = 'black'
+        ctx.lineWidth = 1
+        ctx.rotate(Math.PI / 6)
+        for (let i = 0; i < 9; i++) {
+          ctx.rotate(Math.PI / 6)
+          ctx.moveTo(0, 100);
+          ctx.lineTo(0, 90);
+        }
+        ctx.stroke()
+        ctx.restore()
+      }
+
+      function drawText() {
+        ctx.save()
+
+        ctx.font = "18px serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle"
+        ctx.strokeStyle = 'black'
+        ctx.lineWidth = 1
+
+        let angel = Math.PI / 6
+        for (let i = 0; i < 9; i++) {
+          const x = 80 * Math.cos(angel * i + Math.PI / 2 + Math.PI / 3)
+          const y = 80 * Math.sin(angel * i + Math.PI / 2 + Math.PI / 3)
+          let num = i
+          if (i === 6) {
+            num = 10 / 6 * i
+          } else if (i === 7) {
+            num = 15 / 7 * i
+          } else if (i === 8) {
+            num = 25 / 8 * i
+          }
+          ctx.fillText(num, x, y);
+        }
+        if (!timer) {
+          timer = setTimeout(() => {
+            let num = curAngel
+            curNum = (((num - 60) / 30) * 10)
+            if (curNum >= 70) {
+              curNum = 25 / 8 * curNum
+            } else if (curNum >= 60) {
+              curNum = 15 / 7 * curNum
+            } else if (curNum >= 50) {
+              curNum = 10 / 6 * curNum
+            }
+            curNum = curNum.toFixed(1)
+            timer = null
+          }, 100)
+        }
+
+        ctx.font = "900 32px serif";
+        ctx.clearRect(-60, 50, 120, 100)
+        ctx.fillText(curNum, 0, 85);
+        ctx.restore()
+      }
+
+      function drawIndicator() {
+        ctx.save()
+
+        curAngel += v
+        if (curAngel > maxAngel) {
+          curAngel = maxAngel
+          v = 0
+        } else if (curAngel < minAngel) {
+          curAngel = minAngel
+          v = 0
+        }
+
+        ctx.rotate(deg(curAngel))
+        ctx.moveTo(-3, 0)
+        ctx.lineTo(0, 70)
+        ctx.lineTo(3, 0)
+        ctx.quadraticCurveTo(0, -5, -3, 0);
+        ctx.closePath();
+
+        ctx.lineWidth = 1
+        ctx.fillStyle = 'black'
+        ctx.fill()
+
+        ctx.restore()
+      }
+
+
+      function draw () {
+        ctx.save()
+        ctx.translate(ox, oy)
+        drawGrad()
+        drawIndicator();
+        drawArc()
+        drawText();
+        ctx.restore()
+      }
+
+      return draw
     }
+
+    var drawMeter = meter(200, 150);
+    /*  */
 
     (function animation() {
       ctx.clearRect(0, 0, 1900, 1900)
-      drawMeter(200, 150)
+
+      drawMeter()
       requestAnimationFrame(animation)
     })()
   </script>
